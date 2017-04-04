@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-from cloudinary.models import CloudinaryField
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -15,12 +14,11 @@ class SiteUser(Base):
     """Represents a user on the site"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_pic = models.URLField(
-        max_length=255,
         blank=True,
         default=('http://res.cloudinary.com/andela-troupon/image/upload/'
                  'v1491232845/default_profile_normal_n8yvkf.png')
     )
-    about = models.CharField(max_length=250)
+    about = models.CharField(max_length=20)
 
     def __unicode__(self):
         return '{first_name} {last_name}'.format(
