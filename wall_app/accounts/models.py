@@ -14,9 +14,8 @@ class Base(models.Model):
 class SiteUser(Base):
     """Represents a user on the site"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_pic = CloudinaryField(
-        resource_type='image',
-        type='upload',
+    profile_pic = models.URLField(
+        max_length=255,
         blank=True,
         default=('http://res.cloudinary.com/andela-troupon/image/upload/'
                  'v1491232845/default_profile_normal_n8yvkf.png')
