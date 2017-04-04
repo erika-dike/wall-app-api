@@ -21,5 +21,5 @@ urlpatterns = [
     # the url path can be set to whatever I want
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),
-    # url(r'^api/v1/auth/', include('accounts.urls')),
+    url(r'^api/v1/auth/', include('accounts.urls')),
 ]
