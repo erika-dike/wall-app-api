@@ -59,7 +59,7 @@ ROOT_URLCONF = 'wall_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'accounts/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -145,3 +145,15 @@ SITE_IMAGES = {
     'thumbnail_image_width': 75,
     'thumbnail_image_height': 100,
 }
+
+# Email settings
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.yahoo.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'rikkydyke@yahoo.co.uk'
+EMAIL_HOST_PASSWORD = 'd9uoELb0mC7V'
+DEFAULT_FROM_EMAIL = 'rikkydyke@yahoo.co.uk'
+EMAIL_USE_TLS = True
+
+SENDGRID_API_KEY = config('SENDGRID_API_KEY')

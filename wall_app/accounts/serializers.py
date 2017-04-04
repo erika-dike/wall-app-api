@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from accounts.models import SiteUser
+from accounts.models import Profile
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -20,7 +20,7 @@ class RegisterSerializer(serializers.Serializer):
     profile_pic = serializers.URLField(
         max_length=200,
         min_length=None,
-        allow_blank=False
+        allow_blank=True
     )
 
     def validate(self, data):
@@ -30,16 +30,17 @@ class RegisterSerializer(serializers.Serializer):
         return data
 
     def save(self):
-        user = User.objects.create(
+        user = User.objects.create_user(
             username=self.validated_data['username'],
             first_name=self.validated_data['first_name'],
             last_name=self.validated_data['last_name'],
             email=self.validated_data['email'],
             password=self.validated_data['password1'],
+            is_active=False
         )
-        site_user = SiteUser.objects.create(
+        profile = Profile.objects.create(
             user=user,
             profile_pic=self.validated_data['profile_pic'],
             about=self.validated_data['about']
         )
-        return site_user
+        return profile

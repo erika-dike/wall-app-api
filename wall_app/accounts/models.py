@@ -10,7 +10,7 @@ class Base(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
 
-class SiteUser(Base):
+class Profile(Base):
     """Represents a user on the site"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_pic = models.URLField(
@@ -19,9 +19,10 @@ class SiteUser(Base):
                  'v1491232845/default_profile_normal_n8yvkf.png')
     )
     about = models.CharField(max_length=20)
+    email_confirmed = models.BooleanField(default=False)
 
     def __unicode__(self):
         return '{first_name} {last_name}'.format(
-            first_name=self.first_name,
-            last_name=self.last_name
+            first_name=self.user.first_name,
+            last_name=self.user.last_name
         )
