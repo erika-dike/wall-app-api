@@ -6,15 +6,15 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
-from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework import permissions, status
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail
 
 from accounts.models import Profile
-from accounts.serializers import RegisterSerializer
+from accounts.serializers import RegisterSerializer, ProfileDetailSerializer
 from accounts.tokens import account_activation_token
 
 
@@ -64,7 +64,6 @@ class ActivationView(View):
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
-        import ipdb; ipdb.set_trace()
         if (user is not None and
                 account_activation_token.check_token(user, token)):
             user.is_active = True
@@ -76,3 +75,14 @@ class ActivationView(View):
             status = 'failed'
         return redirect('{url}?status={status}'.format(
             url=frontend_app_url, status=status))
+
+
+class ProfileDetail(RetrieveAPIView):
+    """Handles fetching user detail"""
+    queryset = Profile.objects.all()
+    serializer_class = ProfileDetailSerializer
+    permission_class = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        obj = self.request.user.profile
+        return obj

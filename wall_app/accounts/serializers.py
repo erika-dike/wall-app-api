@@ -44,3 +44,19 @@ class RegisterSerializer(serializers.Serializer):
             about=self.validated_data['about']
         )
         return profile
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """Serialized representation of a user"""
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email')
+
+
+class ProfileDetailSerializer(serializers.ModelSerializer):
+    """Serializer representation of a profile"""
+    user = UserDetailSerializer()
+
+    class Meta:
+        model = Profile
+        fields = ('user', 'about', 'profile_pic')
