@@ -7,9 +7,10 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from rest_framework import permissions, status
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail
 
@@ -18,13 +19,12 @@ from accounts.serializers import RegisterSerializer, ProfileDetailSerializer
 from accounts.tokens import account_activation_token
 
 
-class RegistrationView(CreateAPIView):
+class RegistrationView(APIView):
     serializer_class = RegisterSerializer
-    permisssions = [AllowAny]
+    permissions = [AllowAny]
     queryset = Profile.objects.all()
 
     def post(self, request, format=None, *args, **kwargs):
-        # response = super(RegisterView, self).post(request, *args, **kwargs)
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             profile = serializer.save()
@@ -38,7 +38,8 @@ class RegistrationView(CreateAPIView):
         })
         return Response(response, status=status.HTTP_201_CREATED)
 
-    def send_mail(self, request, profile):
+    @staticmethod
+    def send_mail(request, profile):
         current_site = get_current_site(request)
         subject = 'Confirm your account on Wallie'
         message = render_to_string('accounts/account_activation_email.html', {
@@ -52,7 +53,7 @@ class RegistrationView(CreateAPIView):
         to_email = Email(profile.user.email)
         content = Content("text/html", message)
         mail = Mail(from_email, subject, to_email, content)
-        response = sg.client.mail.send.post(request_body=mail.get())
+        sg.client.mail.send.post(request_body=mail.get())
 
 
 class ActivationView(View):
