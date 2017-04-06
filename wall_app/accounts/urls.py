@@ -13,5 +13,5 @@ urlpatterns = [
     url(r'^auth/api-token-refresh/', refresh_jwt_token),
     url(r'^profile/$',
         views.ProfileDetail.as_view(),
-        name='current-profile'),
+        name='profile'),
 ]

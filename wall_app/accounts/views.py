@@ -81,7 +81,7 @@ class ProfileDetail(RetrieveAPIView):
     """Handles fetching user detail"""
     queryset = Profile.objects.all()
     serializer_class = ProfileDetailSerializer
-    permission_class = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
         obj = self.request.user.profile

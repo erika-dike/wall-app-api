@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse
 import mock
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -48,8 +49,10 @@ class RegisterTestSuite(APITestCase):
 
 
 class LoginTestSuite(APITestCase):
-    def setUp(self):
-        self.creds = {'username': 'john_doe', 'password': 'notsecret'}
+    @classmethod
+    def setUpClass(cls):
+        super(LoginTestSuite, cls).setUpClass()
+        cls.creds = {'username': 'john_doe', 'password': 'notsecret'}
         User.objects.create_user('john_doe', password='notsecret')
 
     def test_user_can_login(self):
@@ -64,3 +67,38 @@ class LoginTestSuite(APITestCase):
         response = self.client.post(url, self.creds, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('token', response.json())
+
+
+class ProfileEndpointTestSuite(APITestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(ProfileEndpointTestSuite, cls).setUpClass()
+        cls.user_details = {
+            'username': 'john_doe',
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'email': 'john_doe@wall.com',
+            'password': 'notsecret'
+        }
+        cls.profile_details = {'about': 'soldier'}
+        user = User.objects.create_user(**cls.user_details)
+        Profile.objects.create(user=user, **cls.profile_details)
+        cls.url = reverse('profile')
+
+    def test_authenticated_user_can_retrieve_his_profile_details(self):
+        self.client.login(
+            username=self.user_details['username'],
+            password=self.user_details['password']
+        )
+        response = self.client.get(self.url)
+        user_info_without_password = {
+            k: v for k, v in self.user_details.items() if k != 'password'
+        }
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['user'], user_info_without_password)
+        self.assertEqual(response.json()['about'],
+                         self.profile_details['about'])
+
+    def test_unauthenticated_user_is_forbidden(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
