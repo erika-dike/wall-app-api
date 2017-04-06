@@ -7,7 +7,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from rest_framework import permissions, status
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import sendgrid
@@ -77,7 +77,7 @@ class ActivationView(View):
             url=frontend_app_url, status=status))
 
 
-class ProfileDetail(RetrieveUpdateAPIView):
+class ProfileDetail(RetrieveUpdateDestroyAPIView):
     """Handles fetching user detail and deleting a user"""
     queryset = Profile.objects.all()
     serializer_class = ProfileDetailSerializer
@@ -88,9 +88,12 @@ class ProfileDetail(RetrieveUpdateAPIView):
         obj = self.request.user.profile
         return obj
 
-    # def update(self, request, *args, **kwargs):
-    #     """Update active authenticated user"""
-    #     instance = self.get_object()
-    #     instance
-    #     import ipdb; ipdb.set_trace()
-    #     obj = self.request.user.profile
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        instance.user.is_active = False
+        instance.user.save()
+
+        instance.status = Profile.DELETED
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
