@@ -7,7 +7,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from rest_framework import permissions, status
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import sendgrid
@@ -77,12 +77,20 @@ class ActivationView(View):
             url=frontend_app_url, status=status))
 
 
-class ProfileDetail(RetrieveAPIView):
-    """Handles fetching user detail"""
+class ProfileDetail(RetrieveUpdateAPIView):
+    """Handles fetching user detail and deleting a user"""
     queryset = Profile.objects.all()
     serializer_class = ProfileDetailSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
+        """Get active authenticated user"""
         obj = self.request.user.profile
         return obj
+
+    # def update(self, request, *args, **kwargs):
+    #     """Update active authenticated user"""
+    #     instance = self.get_object()
+    #     instance
+    #     import ipdb; ipdb.set_trace()
+    #     obj = self.request.user.profile

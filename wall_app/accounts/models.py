@@ -12,6 +12,12 @@ class Base(models.Model):
 
 class Profile(Base):
     """Represents a user on the site"""
+    ACTIVE = 'ACTIVE'
+    DELETED = 'DELETED'
+    STATUS_CHOICES = (
+        (ACTIVE, 'Active'),
+        (DELETED, 'Deleted')
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_pic = models.URLField(
         blank=True,
@@ -20,6 +26,11 @@ class Profile(Base):
     )
     about = models.CharField(max_length=20)
     email_confirmed = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default=ACTIVE
+    )
 
     def __unicode__(self):
         return '{first_name} {last_name}'.format(
