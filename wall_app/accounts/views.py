@@ -38,8 +38,7 @@ class RegistrationView(APIView):
         })
         return Response(response, status=status.HTTP_201_CREATED)
 
-    @staticmethod
-    def send_mail(request, profile):
+    def send_mail(self, request, profile):
         current_site = get_current_site(request)
         subject = 'Confirm your account on Wallie'
         message = render_to_string('accounts/account_activation_email.html', {

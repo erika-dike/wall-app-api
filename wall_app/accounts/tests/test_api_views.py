@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse_lazy
-from django.urls import reverse
+from django.urls import reverse_lazy
 import mock
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,18 +8,31 @@ from accounts.models import Profile
 from accounts.views import RegistrationView
 
 
-class RegisterTestSuite(APITestCase):
+class BaseTestCase(APITestCase):
+    user_details = {
+        'username': 'john_doe',
+        'first_name': 'John',
+        'last_name': 'Doe',
+        'email': 'john_doe@wall.com',
+        'password': 'notsecret',
+    }
+    profile_details = {
+        'about': 'Unknown Soldier',
+        'profile_pic': 'http://unknown-domain.com/does-not-exit.jpg'
+    }
+
+
+class RegisterTestSuite(BaseTestCase):
     def setUp(self):
-        self.data = {
-            'username': 'john_doe',
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'email': 'john_doe@wall.com',
-            'password1': 'notsecret',
-            'password2': 'notsecret',
-            'about': 'Unknown Soldier',
-            'profile_pic': 'http://unknown-domain.com/does-not-exit.jpg'
+        super(RegisterTestSuite, self).setUp()
+        self.data = self.user_details.copy()
+        self.data.update(self.profile_details)
+        passwords = {
+            'password1': self.user_details['password'],
+            'password2': self.user_details['password'],
         }
+        self.data.update(passwords)
+        self.data.pop('password')
         self.url = reverse_lazy('user-registration')
 
     @mock.patch.object(
@@ -69,21 +81,13 @@ class LoginTestSuite(APITestCase):
         self.assertIn('token', response.json())
 
 
-class ProfileEndpointTestSuite(APITestCase):
+class ProfileEndpointTestSuite(BaseTestCase):
     @classmethod
     def setUpClass(cls):
         super(ProfileEndpointTestSuite, cls).setUpClass()
-        cls.user_details = {
-            'username': 'john_doe',
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'email': 'john_doe@wall.com',
-            'password': 'notsecret'
-        }
-        cls.profile_details = {'about': 'soldier'}
         user = User.objects.create_user(**cls.user_details)
         Profile.objects.create(user=user, **cls.profile_details)
-        cls.url = reverse('profile')
+        cls.url = reverse_lazy('profile')
 
     def test_authenticated_user_can_retrieve_his_profile_details(self):
         self.client.login(
