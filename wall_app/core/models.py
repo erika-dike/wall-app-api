@@ -18,22 +18,3 @@ class Post(Base):
             owner=self.owner.user.username,
             date_created=self.date_created
         )
-
-
-# class Love(Base):
-#     """Relates Messages to Users that love them"""
-#     user = models.ForeignKey('auth.User', related_name='loves')
-#     post = models.ForeignKey(
-#         'Post',
-#         on_delete=models.CASCADE,
-#         related_name='loves'
-#     )
-
-#     class Meta:
-#         unique_together = ('user', 'post')
-
-#     def __unicode__(self):
-#         return '{user} loves {post_id}'.format(
-#             user=self.user.username,
-#             post_id=self.post.id
-#         )
