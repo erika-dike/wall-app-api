@@ -7,7 +7,7 @@ from core import views
 urlpatterns = [
     url(r'^auth/login/', obtain_jwt_token, name='user-login'),
     url(r'^auth/api-token-refresh/', refresh_jwt_token),
-    url(r'^messages/$', views.MessageList.as_view(), name='message-list'),
-    url(r'^messages/(?P<pk>[0-9]+)/$',
-        views.MessageDetail.as_view(), name='message-detail'),
+    url(r'^posts/$', views.PostList.as_view(), name='post-list'),
+    url(r'^posts/(?P<pk>[0-9]+)/$',
+        views.PostDetail.as_view(), name='post-detail'),
 ]

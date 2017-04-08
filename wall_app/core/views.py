@@ -1,14 +1,14 @@
 from rest_framework import generics, permissions
 
-from core.models import Message
+from core.models import Post
 from core.pagination import StandardResultsSetPagination
-from core.serializers import MessageSerializer
+from core.serializers import PostSerializer
 
 
-class MessageList(generics.ListCreateAPIView):
+class PostList(generics.ListCreateAPIView):
     """Handles the creation and Listing of all Messages on the database"""
-    queryset = Message.objects.all()
-    serializer_class = MessageSerializer
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -16,8 +16,8 @@ class MessageList(generics.ListCreateAPIView):
         serializer.save(owner=self.request.user.profile)
 
 
-class MessageDetail(generics.RetrieveUpdateDestroyAPIView):
+class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """Handles fetching, updating and deleting a single user"""
-    queryset = Message.objects.all()
-    serializer_class = MessageSerializer
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
     permission_classes = (permissions.IsAuthenticated,)

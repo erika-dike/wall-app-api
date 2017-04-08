@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
 from accounts.serializers import ProfileDetailSerializer
-from core.models import Message
+from core.models import Post
 
 
-class MessageSerializer(serializers.ModelSerializer):
+class PostSerializer(serializers.ModelSerializer):
     owner = ProfileDetailSerializer(read_only=True)
 
     class Meta:
-        model = Message
-        fields = ('date_created', 'content', 'owner')
+        model = Post
+        fields = ('date_created', 'content', 'owner', 'likes')
