@@ -15,6 +15,6 @@ class Message(Base):
 
     def __unicode__(self):
         return '{owner} {date_created}'.format(
-            owner=self.owner.username,
+            owner=self.owner.user.username,
             date_created=self.date_created
         )

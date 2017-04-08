@@ -12,3 +12,10 @@ class MessageList(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user.profile)
+
+
+class MessageDetail(generics.RetrieveUpdateDestroyAPIView):
+    """Handles fetching, updating and deleting a single user"""
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = (permissions.IsAuthenticated,)
