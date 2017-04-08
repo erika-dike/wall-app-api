@@ -1,5 +1,6 @@
 from django.urls import reverse_lazy
 from rest_framework import status
+import mock
 
 from core.models import Message
 from core.tests.http_header import APIHeaderAuthorization
@@ -13,13 +14,11 @@ class MessageListTestSuite(APIHeaderAuthorization):
 
     def test_get_all_messages(self):
         messages = ('Hello World!!!', 'Hello TSL!!!', 'Welcome to TSL!!!')
-        Message.objects.create(content=messages[0], owner=self.profile)
-        Message.objects.create(content=messages[1], owner=self.profile)
-        Message.objects.create(content=messages[2], owner=self.profile)
+        self.create_message_objects(self.profile, messages)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
-        for index, message in enumerate(response.data):
+        self.assertEqual(len(response.data['results']), len(messages))
+        for index, message in enumerate(response.data['results']):
             self.assertEqual(message['content'], messages[index])
 
     def test_post_new_message(self):
@@ -29,6 +28,25 @@ class MessageListTestSuite(APIHeaderAuthorization):
         self.assertTrue(
             Message.objects.filter(content=message['content']).exists()
         )
+
+    @mock.patch('core.pagination.StandardResultsSetPagination.page_size')
+    def test_messages_respons_are_paginated(self, mocked_page_size):
+        messages = ('Hello World!!!', 'Hello TSL!!!', 'Welcome to TSL!!!')
+        mocked_page_size.return_value = 1
+        self.create_message_objects(self.profile, messages)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(response.data['results']),
+            mocked_page_size.return_value
+        )
+        self.assertEqual(response.data['count'], len(messages))
+        self.assertTrue(response.data['next'])
+
+    @staticmethod
+    def create_message_objects(profile, messages):
+        for message in messages:
+            Message.objects.create(content=message, owner=profile)
 
 
 class MessageDetailTestSuite(APIHeaderAuthorization):

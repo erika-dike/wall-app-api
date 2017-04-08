@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions
 
 from core.models import Message
+from core.pagination import StandardResultsSetPagination
 from core.serializers import MessageSerializer
 
 
@@ -8,6 +9,7 @@ class MessageList(generics.ListCreateAPIView):
     """Handles the creation and Listing of all Messages on the database"""
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    pagination_class = StandardResultsSetPagination
     permission_classes = (permissions.IsAuthenticated,)
 
     def perform_create(self, serializer):
