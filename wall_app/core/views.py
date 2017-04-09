@@ -6,7 +6,7 @@ from core.serializers import PostSerializer
 
 
 class PostList(generics.ListCreateAPIView):
-    """Handles the creation and Listing of all Messages on the database"""
+    """Handles the creation and Listing of all Posts on the database"""
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     pagination_class = StandardResultsSetPagination

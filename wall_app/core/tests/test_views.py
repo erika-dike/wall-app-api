@@ -10,30 +10,30 @@ class PostListTestSuite(APIHeaderAuthorization):
     @classmethod
     def setUpClass(cls):
         super(PostListTestSuite, cls).setUpClass()
-        cls.url = reverse_lazy('message-list')
+        cls.url = reverse_lazy('post-list')
 
     def test_get_all_posts(self):
         posts = ('Hello World!!!', 'Hello TSL!!!', 'Welcome to TSL!!!')
-        self.create_message_objects(self.profile, posts)
+        self.create_post_objects(self.profile, posts)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), len(posts))
-        for index, message in enumerate(response.data['results']):
-            self.assertEqual(message['content'], posts[index])
+        for index, post in enumerate(response.data['results']):
+            self.assertEqual(post['content'], posts[index])
 
-    def test_post_new_message(self):
-        message = {'content': 'Hello World!'}
-        response = self.client.post(self.url, data=message)
+    def test_post_new_post(self):
+        post = {'content': 'Hello World!'}
+        response = self.client.post(self.url, data=post)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(
-            Post.objects.filter(content=message['content']).exists()
+            Post.objects.filter(content=post['content']).exists()
         )
 
     @mock.patch('core.pagination.StandardResultsSetPagination.page_size')
     def test_posts_respons_are_paginated(self, mocked_page_size):
         posts = ('Hello World!!!', 'Hello TSL!!!', 'Welcome to TSL!!!')
         mocked_page_size.return_value = 1
-        self.create_message_objects(self.profile, posts)
+        self.create_post_objects(self.profile, posts)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -44,8 +44,8 @@ class PostListTestSuite(APIHeaderAuthorization):
         self.assertTrue(response.data['next'])
 
     @staticmethod
-    def create_message_objects(profile, posts):
-        for message in posts:
+    def create_post_objects(profile, posts):
+        for post in posts:
             Post.objects.create(content=post, owner=profile)
 
 

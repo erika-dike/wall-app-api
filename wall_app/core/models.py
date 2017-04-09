@@ -6,9 +6,9 @@ from accounts.models import Base
 
 
 class Post(Base):
-    """Represents messages on the app"""
+    """Represents posts on the app"""
     content = models.TextField()
-    owner = models.ForeignKey('accounts.Profile', related_name='messages')
+    owner = models.ForeignKey('accounts.Profile', related_name='posts')
 
     class Meta:
         ordering = ('date_modified',)
@@ -18,3 +18,8 @@ class Post(Base):
             owner=self.owner.user.username,
             date_created=self.date_created
         )
+
+
+class Love(Base):
+    fan = models.ForeignKey('accounts.Profile', related_name='loves')
+    post = models.ForeignKey('core.Post', related_name='loves')
