@@ -11,7 +11,9 @@ class APIHeaderAuthorization(BaseTestCase):
     def setUp(self):
         """Include an appropriate `Authorization:` header on all requests"""
         user = User.objects.create_user(**self.user_details)
-        self.profile = Profile.objects.create(user=user, **self.profile_details)
+        self.profile = Profile.objects.create(
+            user=user, **self.profile_details
+        )
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
         payload = jwt_payload_handler(user)

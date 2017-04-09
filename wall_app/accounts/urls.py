@@ -10,8 +10,6 @@ urlpatterns = [
     url(r'^auth/activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.ActivationView.as_view(), name='activate'),
     url(r'^auth/login/', obtain_jwt_token, name='user-login'),
-    url(r'^auth/api-token-refresh/', refresh_jwt_token),
-    url(r'^profile/$',
-        views.ProfileDetail.as_view(),
-        name='profile'),
+    url(r'^auth/api-token-refresh/', refresh_jwt_token, name='refresh-token'),
+    url(r'^profile/$', views.ProfileDetail.as_view(), name='profile'),
 ]

@@ -36,7 +36,4 @@ class Profile(Base):
     )
 
     def __unicode__(self):
-        return '{first_name} {last_name}'.format(
-            first_name=self.user.first_name,
-            last_name=self.user.last_name
-        )
+        return '{user_name}'.format(user_name=self.user.username)
