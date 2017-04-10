@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from core.models import Love, Post
 from core.pagination import StandardResultsSetPagination
-from core.serializers import LoveSerializer, PostSerializer
+from core.serializers import PostSerializer
 
 
 class PostList(generics.ListCreateAPIView):
@@ -14,6 +14,18 @@ class PostList(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        """Returns queryset in order of date last modified by default
+        However, if the query string says top posts, order posts by number
+        of loves
+        """
+        search_str = self.request.query_params.get('q', '')
+        limit = self.request.query_params.get('limit', 10)
+        qs = Post.get_queryset(self.request.user.profile)
+        if search_str.lower() == 'top':
+            qs = Post.order_queryset_by_num_loves(qs, int(limit))
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user.profile)

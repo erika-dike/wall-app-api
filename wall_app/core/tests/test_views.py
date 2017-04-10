@@ -2,9 +2,11 @@ from django.urls import reverse_lazy
 from rest_framework import status
 import mock
 
+from factories.factories import PostFactory, ProfileFactory, UserFactory
+
 from core.models import Love, Post
 from core.tests.http_header import APIHeaderAuthorization
-from factories.factories import PostFactory, ProfileFactory, UserFactory
+from core.tests.testing_utils import create_love_relationship, create_post_objects
 
 
 class PostListTestSuite(APIHeaderAuthorization):
@@ -15,7 +17,7 @@ class PostListTestSuite(APIHeaderAuthorization):
 
     def test_get_all_posts(self):
         num_posts = 3
-        posts = self.create_post_objects(self.profile, num_posts)
+        posts = create_post_objects(self.profile, num_posts)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), num_posts)
@@ -34,7 +36,7 @@ class PostListTestSuite(APIHeaderAuthorization):
     def test_posts_response_are_paginated(self, mocked_page_size):
         mocked_page_size.return_value = 1
         num_posts = 3
-        self.create_post_objects(self.profile, num_posts)
+        create_post_objects(self.profile, num_posts)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -44,12 +46,34 @@ class PostListTestSuite(APIHeaderAuthorization):
         self.assertEqual(response.data['count'], num_posts)
         self.assertTrue(response.data['next'])
 
-    @staticmethod
-    def create_post_objects(profile, num_posts):
-        posts = []
-        for post in xrange(num_posts):
-            posts.append(PostFactory(owner=profile))
-        return posts
+    def test_get_top_posts(self):
+        user_2 = UserFactory(username='jane_doe')
+        profile_2 = ProfileFactory(user=user_2)
+        num_posts = 3
+        posts = create_post_objects(self.profile, num_posts)
+        post_with_no_love, post_with_1_love, post_with_2_loves = posts
+        create_love_relationship(self.profile, [post_with_1_love, post_with_2_loves])
+        create_love_relationship(profile_2, [post_with_2_loves])
+
+        response = self.client.get(self.url, {'q': 'top'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        posts.reverse()
+        expected = [post.content for post in posts]
+        returned = [post['content'] for post in response.data['results']]
+        self.assertEqual(returned, expected)
+
+    def test_get_top_2_posts(self):
+        user_2 = UserFactory(username='jane_doe')
+        profile_2 = ProfileFactory(user=user_2)
+        num_posts = 3
+        posts = create_post_objects(self.profile, num_posts)
+        post_with_no_love, post_with_1_love, post_with_2_loves = posts
+        create_love_relationship(self.profile, [post_with_1_love, post_with_2_loves])
+        create_love_relationship(profile_2, [post_with_2_loves])
+
+        response = self.client.get(self.url, {'q': 'top', 'limit': 2})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
 
 
 class PostDetailTestSuite(APIHeaderAuthorization):

@@ -1,8 +1,7 @@
 from __future__ import unicode_literals
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
-from django.db import models
+from django.db import IntegrityError, models
 
 from accounts.models import Base
 
@@ -14,6 +13,30 @@ class Post(Base):
 
     class Meta:
         ordering = ('date_modified',)
+
+    @staticmethod
+    def get_queryset(profile):
+        """
+        Returns a queryset of all Posts on the site
+
+        This function appends to each object the field: in_love,
+         which indicates whether the current user loves the post or not
+        and the field: num_loves, which represents the number of
+        loves the post has.
+
+        Args:
+            profile -- the current user profile
+        """
+        loves = Love.objects.filter(post=models.OuterRef('pk'), fan=profile)
+        qs = Post.objects.annotate(
+            num_loves=models.Count('loves__post')).annotate(
+            in_love=models.Exists(loves.values('id'))
+        )
+        return qs
+
+    @staticmethod
+    def order_queryset_by_num_loves(queryset, limit):
+        return queryset.order_by('-num_loves')[0:limit]
 
     def __unicode__(self):
         return '{owner} {date_created}'.format(
@@ -39,11 +62,8 @@ class Love(Base):
         Returns:
             object created
         """
-        try:
-            post = Post.objects.get(id=post_id)
-            love = Love.objects.create(fan=fan, post=post)
-        except IntegrityError:
-            love = Love.objects.get(fan=fan, post=post)
+        post = Post.objects.get(id=post_id)
+        love, created = Love.objects.get_or_create(fan=fan, post=post)
         return love
 
     @staticmethod
