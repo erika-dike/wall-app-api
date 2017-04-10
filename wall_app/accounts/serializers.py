@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -33,24 +33,25 @@ class RegisterSerializer(serializers.Serializer):
     def save(self):
         username = self.validated_data['username']
         try:
-            user = User.objects.create_user(
-                username=username,
-                first_name=self.validated_data['first_name'],
-                last_name=self.validated_data['last_name'],
-                email=self.validated_data['email'],
-                password=self.validated_data['password1'],
-                is_active=False
-            )
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=username,
+                    first_name=self.validated_data['first_name'],
+                    last_name=self.validated_data['last_name'],
+                    email=self.validated_data['email'],
+                    password=self.validated_data['password1'],
+                    is_active=False
+                )
+                profile = Profile.objects.create(
+                    user=user,
+                    profile_pic=self.validated_data['profile_pic'],
+                    about=self.validated_data['about']
+                )
         except IntegrityError:
             raise serializers.ValidationError(_(
                 "username - '{username}' already exists".format(
                     username=username)
             ))
-        profile = Profile.objects.create(
-            user=user,
-            profile_pic=self.validated_data['profile_pic'],
-            about=self.validated_data['about']
-        )
         return profile
 
 

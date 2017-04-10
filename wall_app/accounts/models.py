@@ -27,7 +27,7 @@ class Profile(Base):
         default=('http://res.cloudinary.com/andela-troupon/image/upload/'
                  'v1491232845/default_profile_normal_n8yvkf.png')
     )
-    about = models.CharField(max_length=20)
+    about = models.CharField(max_length=255)
     email_confirmed = models.BooleanField(default=False)
     status = models.CharField(
         max_length=10,
