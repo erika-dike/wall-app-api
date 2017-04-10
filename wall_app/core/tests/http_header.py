@@ -1,21 +1,17 @@
-from django.contrib.auth.models import User
+from rest_framework.test import APITestCase
 from rest_framework_jwt.settings import api_settings
 
-from accounts.models import Profile
-from accounts.tests.test_api_views import BaseTestCase
+from factories.factories import ProfileFactory
 
 
-class APIHeaderAuthorization(BaseTestCase):
+class APIHeaderAuthorization(APITestCase):
     """Base class used to attach header to all request on setup."""
 
     def setUp(self):
         """Include an appropriate `Authorization:` header on all requests"""
-        user = User.objects.create_user(**self.user_details)
-        self.profile = Profile.objects.create(
-            user=user, **self.profile_details
-        )
+        self.profile = ProfileFactory()
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-        payload = jwt_payload_handler(user)
+        payload = jwt_payload_handler(self.profile.user)
         token = jwt_encode_handler(payload)
         self.client.credentials(HTTP_AUTHORIZATION='JWT ' + token)

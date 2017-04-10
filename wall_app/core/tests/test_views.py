@@ -1,11 +1,10 @@
 from django.urls import reverse_lazy
 from rest_framework import status
 import mock
-from rest_framework_jwt.serializers import User
 
-from accounts.models import Profile
 from core.models import Love, Post
 from core.tests.http_header import APIHeaderAuthorization
+from factories.factories import PostFactory, ProfileFactory, UserFactory
 
 
 class PostListTestSuite(APIHeaderAuthorization):
@@ -15,13 +14,13 @@ class PostListTestSuite(APIHeaderAuthorization):
         cls.url = reverse_lazy('post-list')
 
     def test_get_all_posts(self):
-        posts = ('Hello World!!!', 'Hello TSL!!!', 'Welcome to TSL!!!')
-        self.create_post_objects(self.profile, posts)
+        num_posts = 3
+        posts = self.create_post_objects(self.profile, num_posts)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), len(posts))
+        self.assertEqual(len(response.data['results']), num_posts)
         for index, post in enumerate(response.data['results']):
-            self.assertEqual(post['content'], posts[index])
+            self.assertEqual(post['content'], posts[index].content)
 
     def test_post_new_post(self):
         post = {'content': 'Hello World!'}
@@ -32,23 +31,25 @@ class PostListTestSuite(APIHeaderAuthorization):
         )
 
     @mock.patch('core.pagination.StandardResultsSetPagination.page_size')
-    def test_posts_respons_are_paginated(self, mocked_page_size):
-        posts = ('Hello World!!!', 'Hello TSL!!!', 'Welcome to TSL!!!')
+    def test_posts_response_are_paginated(self, mocked_page_size):
         mocked_page_size.return_value = 1
-        self.create_post_objects(self.profile, posts)
+        num_posts = 3
+        self.create_post_objects(self.profile, num_posts)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             len(response.data['results']),
             mocked_page_size.return_value
         )
-        self.assertEqual(response.data['count'], len(posts))
+        self.assertEqual(response.data['count'], num_posts)
         self.assertTrue(response.data['next'])
 
     @staticmethod
-    def create_post_objects(profile, posts):
-        for post in posts:
-            Post.objects.create(content=post, owner=profile)
+    def create_post_objects(profile, num_posts):
+        posts = []
+        for post in xrange(num_posts):
+            posts.append(PostFactory(owner=profile))
+        return posts
 
 
 class PostDetailTestSuite(APIHeaderAuthorization):
@@ -60,8 +61,7 @@ class PostDetailTestSuite(APIHeaderAuthorization):
 
     def setUp(self):
         super(PostDetailTestSuite, self).setUp()
-        self.data = {self.CONTENT: 'Hello World!!!', self.OWNER: self.profile}
-        self.post = Post.objects.create(**self.data)
+        self.post = PostFactory(owner=self.profile)
         self.url = reverse_lazy('post-detail', kwargs={'pk': self.post.id})
 
     def test_retrieve_single_post(self):
@@ -70,7 +70,7 @@ class PostDetailTestSuite(APIHeaderAuthorization):
         self.assertEqual(response.data[self.CONTENT], self.post.content)
 
     def test_update_post(self):
-        data = {self.CONTENT: self.data[self.CONTENT]}
+        data = {self.CONTENT: 'Updated Post'}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[self.CONTENT], data[self.CONTENT])
@@ -79,17 +79,13 @@ class PostDetailTestSuite(APIHeaderAuthorization):
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Post.objects.filter(
-            content=self.data[self.CONTENT]).exists())
+            content=self.post.content).exists())
 
 
 class LoveCreateTestSuite(APIHeaderAuthorization):
     def setUp(self):
         super(LoveCreateTestSuite, self).setUp()
-        self.post_data = {
-            'content': 'Hello World!!!',
-            'owner': self.profile
-        }
-        self.post = Post.objects.create(**self.post_data)
+        self.post = PostFactory(owner=self.profile)
         self.data = {}
 
     def test_love_create_success(self):
@@ -110,13 +106,9 @@ class LoveCreateTestSuite(APIHeaderAuthorization):
         self.assertEqual(response.data['in_love'], True)
 
     def test_auth_user_can_love_anothers_post(self):
-        user_details = self.user_details.copy()
-        user_details['username'] = 'new_user'
-        profile_details = self.profile_details.copy()
-        profile_details['about'] = 'Modern Soldier'
-        user = User.objects.create_user(**user_details)
-        profile = Profile.objects.create(user=user, **profile_details)
-        post = Post.objects.create(content='New Post', owner=profile)
+        user = UserFactory(username='new_user')
+        profile = ProfileFactory(user=user, about='Modern Soldier')
+        post = PostFactory(content='New Post', owner=profile)
 
         self.url = reverse_lazy(
             'love-create', kwargs={'post_id': post.id})
@@ -130,11 +122,7 @@ class LoveCreateTestSuite(APIHeaderAuthorization):
 class LoveDeleteTestSuite(APIHeaderAuthorization):
     def setUp(self):
         super(LoveDeleteTestSuite, self).setUp()
-        self.post_data = {
-            'content': 'Hello World!!!',
-            'owner': self.profile
-        }
-        self.post = Post.objects.create(**self.post_data)
+        self.post = PostFactory(owner=self.profile)
         self.love = Love.objects.create(fan=self.profile, post=self.post)
 
     def test_delete_love_success(self):
@@ -155,13 +143,9 @@ class LoveDeleteTestSuite(APIHeaderAuthorization):
         self.assertEqual(response.data['in_love'], False)
 
     def test_auth_user_can_unlove_anothers_post(self):
-        user_details = self.user_details.copy()
-        user_details['username'] = 'new_user'
-        profile_details = self.profile_details.copy()
-        profile_details['about'] = 'Modern Soldier'
-        user = User.objects.create_user(**user_details)
-        profile = Profile.objects.create(user=user, **profile_details)
-        post = Post.objects.create(content='New Post', owner=profile)
+        user = UserFactory(username='new_user')
+        profile = ProfileFactory(user=user, about='Modern Soldier')
+        post = PostFactory(content='New Post', owner=profile)
 
         self.url = reverse_lazy(
             'love-delete', kwargs={'post_id': post.id})

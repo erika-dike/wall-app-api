@@ -6,6 +6,10 @@ from rest_framework.test import APITestCase
 
 from accounts.models import Profile
 from accounts.views import RegistrationView
+from factories.factories import (
+    PROFILE_DATA, USER_DATA,
+    ProfileFactory, UserFactory
+)
 
 
 class BaseTestCase(APITestCase):
@@ -22,14 +26,14 @@ class BaseTestCase(APITestCase):
     }
 
 
-class RegisterTestSuite(BaseTestCase):
+class RegisterTestSuite(APITestCase):
     def setUp(self):
         super(RegisterTestSuite, self).setUp()
-        self.data = self.user_details.copy()
-        self.data.update(self.profile_details)
+        self.data = USER_DATA.copy()
+        self.data.update(PROFILE_DATA)
         passwords = {
-            'password1': self.user_details['password'],
-            'password2': self.user_details['password'],
+            'password1': USER_DATA['password'],
+            'password2': USER_DATA['password'],
         }
         self.data.update(passwords)
         self.data.pop('password')
@@ -64,8 +68,11 @@ class LoginTestSuite(APITestCase):
     @classmethod
     def setUpClass(cls):
         super(LoginTestSuite, cls).setUpClass()
-        cls.creds = {'username': 'john_doe', 'password': 'notsecret'}
-        User.objects.create_user('john_doe', password='notsecret')
+        UserFactory()
+        cls.creds = {
+            'username': USER_DATA['username'],
+            'password': USER_DATA['password'],
+        }
 
     def test_user_can_login(self):
         response = self.client.login(
@@ -85,18 +92,17 @@ class ProfileEndpointTestSuite(BaseTestCase):
     @classmethod
     def setUpClass(cls):
         super(ProfileEndpointTestSuite, cls).setUpClass()
-        user = User.objects.create_user(**cls.user_details)
-        Profile.objects.create(user=user, **cls.profile_details)
+        ProfileFactory()
         cls.url = reverse_lazy('profile')
 
     def test_authenticated_user_can_retrieve_his_profile_details(self):
         self.client.login(
-            username=self.user_details['username'],
-            password=self.user_details['password']
+            username=USER_DATA['username'],
+            password=USER_DATA['password']
         )
         response = self.client.get(self.url)
         user_info_without_password = {
-            k: v for k, v in self.user_details.items() if k != 'password'
+            k: v for k, v in USER_DATA.items() if k != 'password'
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['user'], user_info_without_password)
