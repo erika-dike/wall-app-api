@@ -6,7 +6,9 @@ from factories.factories import PostFactory, ProfileFactory, UserFactory
 
 from core.models import Love, Post
 from core.tests.http_header import APIHeaderAuthorization
-from core.tests.testing_utils import create_love_relationship, create_post_objects
+from core.tests.testing_utils import (
+    create_love_relationship, create_post_objects
+)
 
 
 class PostListTestSuite(APIHeaderAuthorization):
@@ -52,7 +54,8 @@ class PostListTestSuite(APIHeaderAuthorization):
         num_posts = 3
         posts = create_post_objects(self.profile, num_posts)
         post_with_no_love, post_with_1_love, post_with_2_loves = posts
-        create_love_relationship(self.profile, [post_with_1_love, post_with_2_loves])
+        create_love_relationship(self.profile,
+                                 [post_with_1_love, post_with_2_loves])
         create_love_relationship(profile_2, [post_with_2_loves])
 
         response = self.client.get(self.url, {'q': 'top'})
@@ -68,7 +71,8 @@ class PostListTestSuite(APIHeaderAuthorization):
         num_posts = 3
         posts = create_post_objects(self.profile, num_posts)
         post_with_no_love, post_with_1_love, post_with_2_loves = posts
-        create_love_relationship(self.profile, [post_with_1_love, post_with_2_loves])
+        create_love_relationship(self.profile,
+                                 [post_with_1_love, post_with_2_loves])
         create_love_relationship(profile_2, [post_with_2_loves])
 
         response = self.client.get(self.url, {'q': 'top', 'limit': 2})

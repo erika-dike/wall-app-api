@@ -46,8 +46,8 @@ class LoveCreate(APIView):
             Love.create_love(request.user.profile, post_id)
             num_loves = Love.get_num_post_loves(post_id)
             response_payload = {
-                'numLoves': num_loves,
-                'inLove': True
+                'num_loves': num_loves,
+                'in_love': True
             }
             return Response(response_payload, status=status.HTTP_201_CREATED)
         return Response(
@@ -65,8 +65,8 @@ class LoveDelete(APIView):
             Love.delete_love(request.user.profile, post_id)
             num_loves = Love.get_num_post_loves(post_id)
             response_payload = {
-                'numLoves': num_loves,
-                'inLove': False
+                'num_loves': num_loves,
+                'in_love': False
             }
             return Response(
                 response_payload, status=status.HTTP_200_OK)
