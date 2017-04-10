@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -45,10 +44,10 @@ class LoveCreate(APIView):
     def post(self, request, post_id, format=None):
         if Post.objects.filter(id=post_id).exists():
             Love.create_love(request.user.profile, post_id)
-            numLoves = Love.get_num_post_loves(post_id)
+            num_loves = Love.get_num_post_loves(post_id)
             response_payload = {
-                'num_loves': numLoves,
-                'in_love': True
+                'numLoves': num_loves,
+                'inLove': True
             }
             return Response(response_payload, status=status.HTTP_201_CREATED)
         return Response(
@@ -64,10 +63,10 @@ class LoveDelete(APIView):
     def delete(self, request, post_id, format=None):
         if Post.objects.filter(id=post_id).exists():
             Love.delete_love(request.user.profile, post_id)
-            numLoves = Love.get_num_post_loves(post_id)
+            num_loves = Love.get_num_post_loves(post_id)
             response_payload = {
-                'num_loves': numLoves,
-                'in_love': False
+                'numLoves': num_loves,
+                'inLove': False
             }
             return Response(
                 response_payload, status=status.HTTP_200_OK)
