@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from accounts.serializers import UserDetailSerializer
+from accounts.serializers import PublicUserSerializer
 from core.models import Post
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = UserDetailSerializer(read_only=True)
+    author = PublicUserSerializer(read_only=True)
     num_loves = serializers.IntegerField(read_only=True)
     in_love = serializers.BooleanField(read_only=True)
 

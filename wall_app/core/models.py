@@ -15,7 +15,7 @@ class Post(Base):
         ordering = ('date_modified',)
 
     @staticmethod
-    def get_queryset(profile):
+    def get_queryset(user):
         """
         Returns a queryset of all Posts on the site
 
@@ -25,9 +25,9 @@ class Post(Base):
         loves the post has.
 
         Args:
-            profile -- the current user profile
+            user -- the current user
         """
-        loves = Love.objects.filter(post=models.OuterRef('pk'), fan=profile)
+        loves = Love.objects.filter(post=models.OuterRef('pk'), fan=user)
         qs = Post.objects.annotate(
             num_loves=models.Count('loves__post')).annotate(
             in_love=models.Exists(loves.values('id'))
@@ -57,7 +57,7 @@ class Love(Base):
         """
         Creates a new love relationship between fan and post
         Args:
-            fan -- a profile object
+            fan -- a user object
             post_id -- a post id
         Returns:
             object created
@@ -71,7 +71,7 @@ class Love(Base):
         """
         Deletes a love relationship between fan and post
         Args:
-            fan -- a profile object
+            fan -- a user object
             post_id -- a post id
         """
         try:

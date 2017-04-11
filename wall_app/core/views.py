@@ -21,13 +21,13 @@ class PostList(generics.ListCreateAPIView):
         """
         search_str = self.request.query_params.get('q', '')
         limit = self.request.query_params.get('limit', 10)
-        qs = Post.get_queryset(self.request.user.profile)
+        qs = Post.get_queryset(self.request.user)
         if search_str.lower() == 'top':
             qs = Post.order_queryset_by_num_loves(qs, int(limit))
         return qs
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
+        serializer.save(author=self.request.user)
 
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -43,7 +43,7 @@ class LoveCreate(APIView):
 
     def post(self, request, post_id, format=None):
         if Post.objects.filter(id=post_id).exists():
-            Love.create_love(request.user.profile, post_id)
+            Love.create_love(request.user, post_id)
             num_loves = Love.get_num_post_loves(post_id)
             response_payload = {
                 'num_loves': num_loves,
@@ -62,7 +62,7 @@ class LoveDelete(APIView):
 
     def delete(self, request, post_id, format=None):
         if Post.objects.filter(id=post_id).exists():
-            Love.delete_love(request.user.profile, post_id)
+            Love.delete_love(request.user, post_id)
             num_loves = Love.get_num_post_loves(post_id)
             response_payload = {
                 'num_loves': num_loves,

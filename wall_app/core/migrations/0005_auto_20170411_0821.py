@@ -3,13 +3,12 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
 
 
-user = User.objects.create_user('default_user', 'default_user@wallie.com', 'notsecret')
+DEFAULT_USER_ID = 1
 
 
 class Migration(migrations.Migration):
@@ -27,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='post',
             name='author',
-            field=models.ForeignKey(default=user.id, on_delete=django.db.models.deletion.CASCADE, related_name='posts', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(default=DEFAULT_USER_ID, on_delete=django.db.models.deletion.CASCADE, related_name='posts', to=settings.AUTH_USER_MODEL),
             preserve_default=False,
         ),
         migrations.AlterField(

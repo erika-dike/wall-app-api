@@ -88,3 +88,27 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
         user.save()
 
         return instance
+
+
+class PublicProfileSerializer(serializers.ModelSerializer):
+    """Serialized representation of a public profile"""
+    class Meta:
+        model = Profile
+        fields = ('about', 'profile_pic')
+
+
+class PublicUserSerializer(serializers.ModelSerializer):
+    """Serialized representation of a public user"""
+    about = serializers.SerializerMethodField()
+    profile_pic = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'about', 'profile_pic')
+        read_only_fields = ('username', 'first_name', 'last_name', 'about', 'profile_pic')
+
+    def get_about(self, obj):
+        return obj.profile.about
+
+    def get_profile_pic(self, obj):
+        return obj.profile.profile_pic
