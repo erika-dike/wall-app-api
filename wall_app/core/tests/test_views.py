@@ -85,11 +85,11 @@ class PostDetailTestSuite(APIHeaderAuthorization):
     def setUpClass(cls):
         super(PostDetailTestSuite, cls).setUpClass()
         cls.CONTENT = 'content'
-        cls.OWNER = 'owner'
+        cls.AUTHOR = 'author'
 
     def setUp(self):
         super(PostDetailTestSuite, self).setUp()
-        self.post = PostFactory(owner=self.profile)
+        self.post = PostFactory(author=self.profile)
         self.url = reverse_lazy('post-detail', kwargs={'pk': self.post.id})
 
     def test_retrieve_single_post(self):
@@ -113,7 +113,7 @@ class PostDetailTestSuite(APIHeaderAuthorization):
 class LoveCreateTestSuite(APIHeaderAuthorization):
     def setUp(self):
         super(LoveCreateTestSuite, self).setUp()
-        self.post = PostFactory(owner=self.profile)
+        self.post = PostFactory(author=self.profile)
         self.data = {}
 
     def test_love_create_success(self):
@@ -136,7 +136,7 @@ class LoveCreateTestSuite(APIHeaderAuthorization):
     def test_auth_user_can_love_anothers_post(self):
         user = UserFactory(username='new_user')
         profile = ProfileFactory(user=user, about='Modern Soldier')
-        post = PostFactory(content='New Post', owner=profile)
+        post = PostFactory(content='New Post', author=profile)
 
         self.url = reverse_lazy(
             'love-create', kwargs={'post_id': post.id})
@@ -150,7 +150,7 @@ class LoveCreateTestSuite(APIHeaderAuthorization):
 class LoveDeleteTestSuite(APIHeaderAuthorization):
     def setUp(self):
         super(LoveDeleteTestSuite, self).setUp()
-        self.post = PostFactory(owner=self.profile)
+        self.post = PostFactory(author=self.profile)
         self.love = Love.objects.create(fan=self.profile, post=self.post)
 
     def test_delete_love_success(self):
@@ -173,7 +173,7 @@ class LoveDeleteTestSuite(APIHeaderAuthorization):
     def test_auth_user_can_unlove_anothers_post(self):
         user = UserFactory(username='new_user')
         profile = ProfileFactory(user=user, about='Modern Soldier')
-        post = PostFactory(content='New Post', owner=profile)
+        post = PostFactory(content='New Post', author=profile)
 
         self.url = reverse_lazy(
             'love-delete', kwargs={'post_id': post.id})

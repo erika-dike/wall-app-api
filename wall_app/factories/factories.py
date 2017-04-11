@@ -46,7 +46,7 @@ class PostFactory(factory.django.DjangoModelFactory):
         model = Post
 
     content = factory.Faker('sentence', nb_words=6)
-    owner = factory.SubFactory(ProfileFactory)
+    author = factory.SubFactory(ProfileFactory)
 
 
 class LoveFactory(factory.django.DjangoModelFactory):

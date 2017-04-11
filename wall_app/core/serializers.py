@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
-from accounts.serializers import ProfileDetailSerializer
+from accounts.serializers import UserDetailSerializer
 from core.models import Post
 
 
 class PostSerializer(serializers.ModelSerializer):
-    owner = ProfileDetailSerializer(read_only=True)
+    author = UserDetailSerializer(read_only=True)
     num_loves = serializers.IntegerField(read_only=True)
     in_love = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Post
-        fields = ('date_created', 'content', 'owner', 'num_loves', 'in_love')
+        fields = ('date_created', 'content', 'author', 'num_loves', 'in_love')

@@ -9,7 +9,7 @@ from accounts.models import Base
 class Post(Base):
     """Represents posts on the app"""
     content = models.TextField()
-    owner = models.ForeignKey('accounts.Profile', related_name='posts')
+    author = models.ForeignKey('auth.user', related_name='posts')
 
     class Meta:
         ordering = ('date_modified',)
@@ -39,14 +39,14 @@ class Post(Base):
         return queryset.order_by('-num_loves')[0:limit]
 
     def __unicode__(self):
-        return '{owner} {date_created}'.format(
-            owner=self.owner.user.username,
+        return '{author} {date_created}'.format(
+            author=self.author.username,
             date_created=self.date_created
         )
 
 
 class Love(Base):
-    fan = models.ForeignKey('accounts.Profile', related_name='loves')
+    fan = models.ForeignKey('auth.User', related_name='loves')
     post = models.ForeignKey('core.Post', related_name='loves')
 
     class Meta:
@@ -89,7 +89,7 @@ class Love(Base):
 
     def __unicode__(self):
         return '{fan} loved post {post_id} by {author}'.format(
-            fan=self.fan.user.username,
+            fan=self.fan.username,
             post_id=self.post.id,
-            author=self.post.owner.user.username
+            author=self.post.author.username
         )

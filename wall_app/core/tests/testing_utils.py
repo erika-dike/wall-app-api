@@ -4,7 +4,7 @@ from factories.factories import LoveFactory, PostFactory
 def create_post_objects(profile, num_posts):
     """Creates post objects
     Args:
-        profile -- the owner/author of the posts
+        profile -- the author of the posts
         num_posts -- number of posts to create
 
     Returns:
@@ -12,7 +12,7 @@ def create_post_objects(profile, num_posts):
     """
     posts = []
     for post in xrange(num_posts):
-        posts.append(PostFactory(owner=profile))
+        posts.append(PostFactory(author=profile))
     return posts
 
 
