@@ -12,7 +12,7 @@ class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     pagination_class = StandardResultsSetPagination
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         """Returns queryset in order of date last modified by default
@@ -21,7 +21,7 @@ class PostList(generics.ListCreateAPIView):
         """
         search_str = self.request.query_params.get('q', '')
         limit = self.request.query_params.get('limit', 10)
-        qs = Post.get_queryset(self.request.user)
+        qs = Post.get_queryset(self.request.user.id)
         if search_str.lower() == 'top':
             qs = Post.order_queryset_by_num_loves(qs, int(limit))
         return qs

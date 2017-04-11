@@ -15,7 +15,7 @@ class Post(Base):
         ordering = ('date_modified',)
 
     @staticmethod
-    def get_queryset(user):
+    def get_queryset(user_id):
         """
         Returns a queryset of all Posts on the site
 
@@ -25,9 +25,9 @@ class Post(Base):
         loves the post has.
 
         Args:
-            user -- the current user
+            user_id -- the id of the current user
         """
-        loves = Love.objects.filter(post=models.OuterRef('pk'), fan=user)
+        loves = Love.objects.filter(post=models.OuterRef('pk'), fan__id=user_id)
         qs = Post.objects.annotate(
             num_loves=models.Count('loves__post')).annotate(
             in_love=models.Exists(loves.values('id'))

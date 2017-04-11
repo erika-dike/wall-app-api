@@ -28,7 +28,7 @@ class Base(TestCase):
 
 class PostTestSuite(Base):
     def test_get_queryset_returns_accurate_values_for_num_loves(self):
-        queryset = Post.get_queryset(self.user_1)
+        queryset = Post.get_queryset(self.user_1.id)
         for post in queryset:
             if post.num_loves == 2:
                 self.assertIn(post, self.posts_with_2_loves)
@@ -38,21 +38,21 @@ class PostTestSuite(Base):
                 self.assertIn(post, self.posts_with_no_love)
 
     def test_get_queryset_returns_accurate_values_for_in_love_profile_1(self):
-        queryset = Post.get_queryset(self.user_1)
+        queryset = Post.get_queryset(self.user_1.id)
         queryset_with_loved_posts = queryset.filter(loves__fan=self.user_1)
         expected = self.posts_with_2_loves
         for post in queryset_with_loved_posts:
             self.assertIn(post, expected)
 
     def test_get_queryset_returns_accurate_values_for_in_love_profile_2(self):
-        queryset = Post.get_queryset(self.user_2)
+        queryset = Post.get_queryset(self.user_2.id)
         queryset_with_loved_posts = queryset.filter(loves__fan=self.user_2)
         expected = self.posts_with_2_loves + self.posts_with_1_love
         for post in queryset_with_loved_posts:
             self.assertIn(post, expected)
 
     def test_order_queryset_by_num_loves_returns_posts_ordered_by_num_loves(self):
-        queryset = Post.get_queryset(self.user_1)
+        queryset = Post.get_queryset(self.user_1.id)
         queryset = Post.order_queryset_by_num_loves(queryset, limit=10)
         expected = (self.posts_with_2_loves +
                     self.posts_with_1_love +

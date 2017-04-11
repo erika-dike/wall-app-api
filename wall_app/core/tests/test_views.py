@@ -26,6 +26,14 @@ class PostListTestSuite(APIHeaderAuthorization):
         for index, post in enumerate(response.data['results']):
             self.assertEqual(post['content'], posts[index].content)
 
+    def test_unauthenticated_user_can_also_view_posts(self):
+        self.client.logout()
+        num_posts = 3
+        create_post_objects(self.profile.user, num_posts)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), num_posts)
+
     def test_post_new_post(self):
         post = {'content': 'Hello World!'}
         response = self.client.post(self.url, data=post)
