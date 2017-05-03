@@ -58,7 +58,6 @@ class RegistrationView(APIView):
 class ActivationView(View):
     """Handles user account activation"""
     def get(self, request, uidb64, token):
-        frontend_app_url = 'http://localhost:3000/'
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
@@ -74,7 +73,7 @@ class ActivationView(View):
         else:
             status = 'failed'
         return redirect('{url}?status={status}'.format(
-            url=frontend_app_url, status=status))
+            url=settings.FRONTEND_URL, status=status))
 
 
 class ProfileDetail(RetrieveUpdateDestroyAPIView):

@@ -18,11 +18,6 @@ class RegisterSerializer(serializers.Serializer):
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
     about = serializers.CharField(max_length=250)
-    profile_pic = serializers.URLField(
-        max_length=200,
-        min_length=None,
-        allow_blank=True
-    )
 
     def validate(self, data):
         if data['password1'] != data['password2']:
@@ -44,7 +39,6 @@ class RegisterSerializer(serializers.Serializer):
                 )
                 profile = Profile.objects.create(
                     user=user,
-                    profile_pic=self.validated_data['profile_pic'],
                     about=self.validated_data['about']
                 )
         except IntegrityError:

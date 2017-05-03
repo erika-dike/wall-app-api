@@ -23,6 +23,7 @@ class Profile(Base):
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_pic = models.URLField(
+        null=True,
         blank=True,
         default=('http://res.cloudinary.com/andela-troupon/image/upload/'
                  'v1491232845/default_profile_normal_n8yvkf.png')

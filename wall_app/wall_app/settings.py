@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
+from corsheaders.defaults import default_headers
 from decouple import config, Csv
 import dj_database_url
 
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'accounts',
     'core',
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -151,14 +154,38 @@ REST_FRAMEWORK = {
     ),
 }
 
-
-# Image dimensions
-SITE_IMAGES = {
-    'large_image_width': 1000,
-    'large_image_height': 1000,
-    'thumbnail_image_width': 75,
-    'thumbnail_image_height': 100,
+# settings for JWT
+JWT_AUTH = {
+    'JWT_ALLOW_REFRESH': True,
 }
+
+# CORS settings
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:3000'
+)
+
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+)
+
+CORS_ALLOW_HEADERS = default_headers + (
+    'access-control-allow-origin',
+    'access-control-allow-methods',
+    'access-control-allow-headers',
+)
 
 # Email settings
 SENDGRID_API_KEY = config('SENDGRID_API_KEY')
+
+# Frontend URL
+if DEBUG is True:
+    FRONTEND_URL = 'http://localhost:3000/login'
+else:
+    FRONTEND_URL = ''
