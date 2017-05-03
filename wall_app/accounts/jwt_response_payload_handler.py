@@ -7,6 +7,6 @@ def jwt_response_payload_handler(token, user=None, request=None):
     """
     return {
         'token': token,
-        'user': ProfileDetailSerializer(
+        'profile': ProfileDetailSerializer(
             user.profile, context={'request': request}).data
     }
