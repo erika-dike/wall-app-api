@@ -51,12 +51,17 @@ class RegisterSerializer(serializers.Serializer):
 
 class UserDetailSerializer(serializers.ModelSerializer):
     """Serialized representation of a user"""
+    num_posts = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email')
+        fields = ('username', 'first_name', 'last_name', 'email', 'num_posts')
         extra_kwargs = {
             'username': {'validators': []},
         }
+
+    def get_num_posts(self, obj):
+        return obj.posts.count()
 
 
 class ProfileDetailSerializer(serializers.ModelSerializer):
@@ -98,8 +103,12 @@ class PublicUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'about', 'profile_pic')
-        read_only_fields = ('username', 'first_name', 'last_name', 'about', 'profile_pic')
+        fields = (
+            'username', 'first_name', 'last_name', 'about', 'profile_pic'
+        )
+        read_only_fields = (
+            'username', 'first_name', 'last_name', 'about', 'profile_pic'
+        )
 
     def get_about(self, obj):
         return obj.profile.about
