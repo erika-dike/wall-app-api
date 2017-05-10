@@ -67,7 +67,7 @@ class LoginTestSuite(APITestCase):
     @classmethod
     def setUpClass(cls):
         super(LoginTestSuite, cls).setUpClass()
-        UserFactory()
+        ProfileFactory()
         cls.creds = {
             'username': USER_DATA['username'],
             'password': USER_DATA['password'],
@@ -104,6 +104,8 @@ class ProfileEndpointTestSuite(BaseTestCase):
             k: v for k, v in USER_DATA.items() if k != 'password'
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['user']['num_posts'], 0)
+        del response.json()['user']['num_posts']
         self.assertEqual(response.json()['user'], user_info_without_password)
         self.assertEqual(response.json()['about'],
                          self.profile_details['about'])

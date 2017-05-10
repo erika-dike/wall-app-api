@@ -67,6 +67,7 @@ class LoveView(APIView):
             self._get_failure_response_payload,
             status=status.HTTP_400_BAD_REQUEST)
 
+    @staticmethod
     def _get_success_response_payload(post_id, num_loves, in_love):
         """Returns a dictionary of success response"""
         return {
@@ -75,6 +76,7 @@ class LoveView(APIView):
             'in_love': in_love
         }
 
+    @staticmethod
     def _get_failure_response_payload():
         """Returns failure response payload"""
         return {'error': 'Invalid Post ID'}
