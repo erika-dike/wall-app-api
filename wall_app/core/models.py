@@ -30,7 +30,7 @@ class Post(Base):
         loves = Love.objects.filter(post=models.OuterRef('pk'), fan__id=user_id)
         qs = Post.objects.annotate(
             num_loves=models.Count('loves__post')).annotate(
-            in_love=models.Exists(loves.values('id'))
+                in_love=models.Exists(loves.values('id'))
         )
         return qs
 

@@ -100,14 +100,17 @@ class PublicUserSerializer(serializers.ModelSerializer):
     """Serialized representation of a public user"""
     about = serializers.SerializerMethodField()
     profile_pic = serializers.SerializerMethodField()
+    num_posts = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
-            'username', 'first_name', 'last_name', 'about', 'profile_pic'
+            'username', 'first_name', 'last_name', 'about', 'profile_pic',
+            'num_posts'
         )
         read_only_fields = (
-            'username', 'first_name', 'last_name', 'about', 'profile_pic'
+            'username', 'first_name', 'last_name', 'about', 'profile_pic',
+            'num_posts'
         )
 
     def get_about(self, obj):
@@ -115,3 +118,6 @@ class PublicUserSerializer(serializers.ModelSerializer):
 
     def get_profile_pic(self, obj):
         return obj.profile.profile_pic
+
+    def get_num_posts(self, obj):
+        return obj.posts.count()
