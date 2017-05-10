@@ -124,7 +124,7 @@ class LoveCreateTestSuite(APIHeaderAuthorization):
 
     def test_love_create_success(self):
         self.url = reverse_lazy(
-            'love-create', kwargs={'post_id': self.post.id})
+            'love-view', kwargs={'post_id': self.post.id})
         response = self.client.post(self.url, self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -133,7 +133,7 @@ class LoveCreateTestSuite(APIHeaderAuthorization):
 
     def test_love_create_response(self):
         self.url = reverse_lazy(
-            'love-create', kwargs={'post_id': self.post.id})
+            'love-view', kwargs={'post_id': self.post.id})
         response = self.client.post(self.url, self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['num_loves'], 1)
@@ -144,7 +144,7 @@ class LoveCreateTestSuite(APIHeaderAuthorization):
         post = PostFactory(content='New Post', author=user)
 
         self.url = reverse_lazy(
-            'love-create', kwargs={'post_id': post.id})
+            'love-view', kwargs={'post_id': post.id})
         response = self.client.post(self.url, self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -160,7 +160,7 @@ class LoveDeleteTestSuite(APIHeaderAuthorization):
 
     def test_delete_love_success(self):
         self.url = reverse_lazy(
-            'love-delete', kwargs={'post_id': self.post.id})
+            'love-view', kwargs={'post_id': self.post.id})
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -169,7 +169,7 @@ class LoveDeleteTestSuite(APIHeaderAuthorization):
 
     def test_love_create_response(self):
         self.url = reverse_lazy(
-            'love-delete', kwargs={'post_id': self.post.id})
+            'love-view', kwargs={'post_id': self.post.id})
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['num_loves'], 0)
@@ -180,7 +180,7 @@ class LoveDeleteTestSuite(APIHeaderAuthorization):
         post = PostFactory(content='New Post', author=user)
 
         self.url = reverse_lazy(
-            'love-delete', kwargs={'post_id': post.id})
+            'love-view', kwargs={'post_id': post.id})
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
