@@ -31,7 +31,7 @@ class Post(Base):
         qs = Post.objects.annotate(
             num_loves=models.Count('loves__post')).annotate(
                 in_love=models.Exists(loves.values('id'))
-        )
+        ).order_by('-date_modified')
         return qs
 
     @staticmethod
