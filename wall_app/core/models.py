@@ -38,6 +38,19 @@ class Post(Base):
     def order_queryset_by_num_loves(queryset, limit):
         return queryset.order_by('-num_loves')[0:limit]
 
+    @staticmethod
+    def filter_others_post(queryset, auth_user):
+        """Returns posts authored by thte authenticated user
+
+        Args:
+            queryset -- queryset of all posts in the app
+            auth_user -- the currently authenticated user
+        """
+        try:
+            return queryset.filter(author=auth_user)
+        except TypeError:
+            return queryset
+
     def __unicode__(self):
         return '{author} {date_created}'.format(
             author=self.author.username,

@@ -21,9 +21,14 @@ class PostList(generics.ListCreateAPIView):
         """
         search_str = self.request.query_params.get('q', '')
         limit = self.request.query_params.get('limit', 10)
+        private = self.request.query_params.get('private', False)
+
         qs = Post.get_queryset(self.request.user.id)
+        if private:
+            qs = Post.filter_others_post(qs, self.request.user)
         if search_str.lower() == 'top':
             qs = Post.order_queryset_by_num_loves(qs, int(limit))
+
         return qs
 
     def perform_create(self, serializer):
