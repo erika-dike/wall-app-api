@@ -36,6 +36,11 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    def get_queryset(self):
+        """Returns queryset in order of date last modified by default"""
+        qs = Post.get_queryset(self.request.user.id)
+        return qs
+
 
 class LoveView(APIView):
     """Handles users loving or unloving a post"""
