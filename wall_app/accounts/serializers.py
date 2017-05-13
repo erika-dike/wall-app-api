@@ -70,7 +70,8 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('user', 'about', 'profile_pic')
+        fields = ('user', 'about', 'profile_pic', 'date_created')
+        read_only_fields = ('date_created',)
 
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user')
