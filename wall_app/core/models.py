@@ -5,7 +5,10 @@ from django.db import models
 
 from accounts.models import Base
 
-from .consumers import send_love_status_to_client, send_post_to_client
+from .consumers import (
+    send_post_delete_command_to_clients, send_love_status_to_clients,
+    send_post_to_clients,
+)
 
 
 class Post(Base):
@@ -28,17 +31,32 @@ class Post(Base):
         use signals.
         """
         result = super(Post, self).save(*args, **kwargs)
-        self.update_connected_users()
+        self.update_connected_users_on_save()
         return result
 
-    def update_connected_users(self):
+    def delete(self, *args, **kwargs):
+        """
+        Trigger the notifying of users on the websocket about the removal
+        of models
+        """
+        post_id = self.id
+        result = super(Post, self).delete(*args, **kwargs)
+        Post.update_connected_users_on_delete(post_id)
+        return result
+
+    def update_connected_users_on_save(self):
         """
         Send a notification to everyone connected to our websocket
         of the post just created or updated
         """
         queryset = Post.get_queryset(None)
         post = queryset.filter(id=self.id)[0]
-        send_post_to_client(post)
+        send_post_to_clients(post)
+
+    @staticmethod
+    def update_connected_users_on_delete(post_id):
+        """Send notification of delete on websocket channel"""
+        send_post_delete_command_to_clients(post_id)
 
     @staticmethod
     def get_queryset(user_id):
@@ -104,7 +122,7 @@ class Love(Base):
             'num_loves': num_loves,
             'in_love': False,
         }
-        send_love_status_to_client(payload)
+        send_love_status_to_clients(payload)
 
     @staticmethod
     def create_love(fan, post_id):

@@ -29,12 +29,12 @@ def disconnect_post(message):
     Group(settings.GLOBAL_CHANNEL_NAME).discard(message.reply_channel)
 
 
-def send_post_to_client(post):
+def send_post_to_clients(post):
     """
     This consumer is in charge of sending newly created or modified posts
     to all clients in the global group
 
-    This view is called from the core/models.py
+    This function is called from the core/models.py
     I didn't just send it from the models to avoid circular import errors
     when importing PostSerializer.
     """
@@ -51,7 +51,22 @@ def send_post_to_client(post):
     })
 
 
-def send_love_status_to_client(data):
+def send_post_delete_command_to_clients(post_id):
+    """
+    This consumer is in charge of informing clients of post removal
+
+    This function is called from the core/models.py
+    """
+    payload = {
+        'type': 'post_delete',
+        'data': post_id,
+    }
+
+    # Encode and send that message to the general channel
+    Group(settings.GLOBAL_CHANNEL_NAME).send({'text': json.dumps(payload)})
+
+
+def send_love_status_to_clients(data):
     """
     This consumer is in charge of sending love status changes to users
     connected to the global channel
