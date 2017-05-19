@@ -5,6 +5,8 @@ from django.db import models
 
 from accounts.models import Base
 
+from .consumers import send_love_status_to_client, send_post_to_client
+
 
 class Post(Base):
     """Represents posts on the app"""
@@ -13,6 +15,30 @@ class Post(Base):
 
     class Meta:
         ordering = ('date_modified',)
+
+    def __unicode__(self):
+        return '{author} {date_created}'.format(
+            author=self.author.username,
+            date_created=self.date_created
+        )
+
+    def save(self, *args, **kwargs):
+        """
+        Hooking send_notification into the save of the object rather than
+        use signals.
+        """
+        result = super(Post, self).save(*args, **kwargs)
+        self.update_connected_users()
+        return result
+
+    def update_connected_users(self):
+        """
+        Send a notification to everyone connected to our websocket
+        of the post just created or updated
+        """
+        queryset = Post.get_queryset(None)
+        post = queryset.filter(id=self.id)[0]
+        send_post_to_client(post)
 
     @staticmethod
     def get_queryset(user_id):
@@ -27,7 +53,8 @@ class Post(Base):
         Args:
             user_id -- the id of the current user
         """
-        loves = Love.objects.filter(post=models.OuterRef('pk'), fan__id=user_id)
+        loves = Love.objects.filter(post=models.OuterRef('pk'),
+                                    fan__id=user_id)
         qs = Post.objects.annotate(
             num_loves=models.Count('loves__post')).annotate(
                 in_love=models.Exists(loves.values('id'))
@@ -51,12 +78,6 @@ class Post(Base):
         except TypeError:
             return queryset
 
-    def __unicode__(self):
-        return '{author} {date_created}'.format(
-            author=self.author.username,
-            date_created=self.date_created
-        )
-
 
 class Love(Base):
     fan = models.ForeignKey('auth.User', related_name='loves')
@@ -64,6 +85,26 @@ class Love(Base):
 
     class Meta:
         unique_together = ('fan', 'post')
+
+    def __unicode__(self):
+        return '{fan} loved post {post_id} by {author}'.format(
+            fan=self.fan.username,
+            post_id=self.post.id,
+            author=self.post.author.username
+        )
+
+    def update_connected_users(self):
+        """
+        Send updates to everyone connected to our websocket
+        when object is created/updated
+        """
+        num_loves = Love.get_num_post_loves(self.post.id)
+        payload = {
+            'post_id': self.post.id,
+            'num_loves': num_loves,
+            'in_love': False,
+        }
+        send_love_status_to_client(payload)
 
     @staticmethod
     def create_love(fan, post_id):
@@ -77,6 +118,7 @@ class Love(Base):
         """
         post = Post.objects.get(id=post_id)
         love, created = Love.objects.get_or_create(fan=fan, post=post)
+        love.update_connected_users()
         return love
 
     @staticmethod
@@ -89,7 +131,9 @@ class Love(Base):
         """
         try:
             post = Post.objects.get(id=post_id)
-            Love.objects.get(fan=fan, post=post).delete()
+            love = Love.objects.get(fan=fan, post=post)
+            love.delete()
+            love.update_connected_users()
         except ObjectDoesNotExist:
             pass
 
@@ -99,10 +143,3 @@ class Love(Base):
         Returns the number of loves the post with the supplied post_id has
         """
         return Love.objects.filter(post__id=post_id).count()
-
-    def __unicode__(self):
-        return '{fan} loved post {post_id} by {author}'.format(
-            fan=self.fan.username,
-            post_id=self.post.id,
-            author=self.post.author.username
-        )

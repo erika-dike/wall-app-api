@@ -1,3 +1,4 @@
+
 """
 Django settings for wall_app project.
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'corsheaders',
     'rest_framework',
     'accounts',
@@ -192,3 +194,15 @@ if DEBUG is True:
     FRONTEND_URL = 'http://localhost:3000/login'
 else:
     FRONTEND_URL = ''
+
+# settings for the Channel package
+GLOBAL_CHANNEL_NAME = 'global'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        },
+        'ROUTING': 'wall_app.routing.channel_routing',
+    }
+}
