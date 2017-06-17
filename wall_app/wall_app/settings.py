@@ -193,7 +193,7 @@ SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 if DEBUG is True:
     FRONTEND_URL = 'http://localhost:3000/login'
 else:
-    FRONTEND_URL = ''
+    FRONTEND_URL = 'https://wallie-app.herokuapp.com/'
 
 # settings for the Channel package
 GLOBAL_CHANNEL_NAME = 'global'
