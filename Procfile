@@ -1,2 +1,2 @@
-web: gunicorn wall_app.asgi --pythonpath=wall_app --timeout 15 --keep-alive 5 --log-level debug --log-file -
+web: cd wall_app; daphne wall_app.asgi:channel_layer --port $PORT --bind 0.0.0.0 -v2
 worker: python manage.py runworker

@@ -17,8 +17,6 @@ from corsheaders.defaults import default_headers
 from decouple import config, Csv
 import dj_database_url
 
-# from accounts import jwt_response_payload_handler
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
