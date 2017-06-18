@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from factories.factories import UserFactory
+from factories.factories import UserFactory, ProfileFactory
 
 from core.models import Post, Love
 from core.tests.testing_utils import (
@@ -16,6 +16,8 @@ class Base(TestCase):
             first_name='Jane',
             email='jane_doe@wallie.com'
         )
+        ProfileFactory(user=self.user_1)
+        ProfileFactory(user=self.user_2)
         profile_1_posts = create_post_objects(self.user_1, 3)
         profile_2_posts = create_post_objects(self.user_2, 2)
         self.posts_with_2_loves = profile_1_posts[:1] + profile_2_posts[:1]

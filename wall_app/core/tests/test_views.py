@@ -2,7 +2,7 @@ from django.urls import reverse_lazy
 from rest_framework import status
 import mock
 
-from factories.factories import PostFactory, UserFactory
+from factories.factories import PostFactory, ProfileFactory, UserFactory
 
 from core.models import Love, Post
 from core.tests.http_header import APIHeaderAuthorization
@@ -20,6 +20,7 @@ class PostListTestSuite(APIHeaderAuthorization):
     def test_get_all_posts(self):
         num_posts = 3
         posts = create_post_objects(self.profile.user, num_posts)
+        posts.reverse()
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), num_posts)
@@ -141,6 +142,7 @@ class LoveCreateTestSuite(APIHeaderAuthorization):
 
     def test_auth_user_can_love_anothers_post(self):
         user = UserFactory(username='new_user')
+        ProfileFactory(user=user)
         post = PostFactory(content='New Post', author=user)
 
         self.url = reverse_lazy(
@@ -177,6 +179,7 @@ class LoveDeleteTestSuite(APIHeaderAuthorization):
 
     def test_auth_user_can_unlove_anothers_post(self):
         user = UserFactory(username='new_user')
+        ProfileFactory(user=user)
         post = PostFactory(content='New Post', author=user)
 
         self.url = reverse_lazy(

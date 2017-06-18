@@ -46,12 +46,12 @@ class PostFactory(factory.django.DjangoModelFactory):
         model = Post
 
     content = factory.Faker('sentence', nb_words=6)
-    author = factory.SubFactory(ProfileFactory)
+    author = factory.SubFactory(UserFactory)
 
 
 class LoveFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Love
 
-    fan = factory.SubFactory(ProfileFactory)
+    fan = factory.SubFactory(UserFactory)
     post = factory.SubFactory(PostFactory)

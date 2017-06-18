@@ -5,10 +5,7 @@ from rest_framework.test import APITestCase
 
 from accounts.models import Profile
 from accounts.views import RegistrationView
-from factories.factories import (
-    PROFILE_DATA, USER_DATA,
-    ProfileFactory, UserFactory
-)
+from factories.factories import PROFILE_DATA, USER_DATA, ProfileFactory
 
 
 class BaseTestCase(APITestCase):
