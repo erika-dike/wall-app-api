@@ -23,7 +23,7 @@
 
             <div style="border-collapse: separate; border-spacing: 0; width: auto; margin-bottom: 15px; text-align: left; vertical-align: top;">
 
-              <a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}" style="background-color:#715da6; border: solid 1px #715da6; border-color: #715da6; border-radius: 5px; color: #fff; display: inline-block; font-size: 14px;font-weight: bold; margin: 0; padding: 12px 25px; text-decoration:none;text-transform:capitalize" target="_blank"> ACTIVATE</a>
+              <a href="{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}" style="background-color:#715da6; border: solid 1px #715da6; border-color: #715da6; border-radius: 5px; color: #fff; display: inline-block; font-size: 14px;font-weight: bold; margin: 0; padding: 12px 25px; text-decoration:none;text-transform:capitalize" target="_blank"> ACTIVATE</a>
 
           <p style="color: #444">Thanks,</p>
           <p style="color: #444">Wallie Team</p>

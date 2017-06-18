@@ -43,6 +43,7 @@ class RegistrationView(APIView):
         subject = 'Confirm your account on Wallie'
         message = render_to_string('accounts/account_activation_email.html', {
             'first_name': profile.user.first_name,
+            'protocol': 'https' if request.is_secure() else 'http',
             'domain': current_site.domain,
             'uid': urlsafe_base64_encode(force_bytes(profile.user.pk)),
             'token': account_activation_token.make_token(profile.user),
@@ -72,7 +73,7 @@ class ActivationView(View):
             status = 'success'
         else:
             status = 'failed'
-        return redirect('{url}?status={status}'.format(
+        return redirect('{url}/login?status={status}'.format(
             url=settings.FRONTEND_URL, status=status))
 
 
