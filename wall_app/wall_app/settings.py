@@ -188,10 +188,10 @@ CORS_ALLOW_HEADERS = default_headers + (
 SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 # Frontend URL
-if DEBUG is True:
-    FRONTEND_URL = 'http://localhost:3000/login'
-else:
+if config('ENV') is 'production':
     FRONTEND_URL = 'https://wallie-app.herokuapp.com/'
+else:
+    FRONTEND_URL = 'http://localhost:3000/login'
 
 # settings for the Channel package
 GLOBAL_CHANNEL_NAME = 'global'
